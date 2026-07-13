@@ -78,7 +78,30 @@ class BookingController extends Controller
         $flight = $this->flightRepository->getFlightByFlightNumber($flightNumber);
         $tier = $flight->classes->find($transaction['flight_class_id']);
 
-        return view('pages.booking.passenger-details', compact('transaction', 'flight', 'tier'));
+        return view('pages.booking.checkout', compact('transaction', 'flight', 'tier'));
+    }
+
+    public function processPayment(Request $request, string $flightNumber)
+    {
+        $request->validate([
+            'payment_method' => 'required',
+        ]);
+
+        $transaction = $this->transactionRepository->getTransactionDataFromSession();
+
+        if (!$transaction) {
+            return redirect()->route('home')->with('error', 'Session telah berakhir.');
+        }
+
+        // Merge payment method ke session data
+        $transaction['payment_method'] = $request->input('payment_method');
+        $transaction['promo_code']     = $request->input('promo_code');
+
+        // Simpan ke database
+        $savedTransaction = $this->transactionRepository->saveTransaction($transaction);
+
+        return redirect()->route('booking.check')
+            ->with('success', 'Booking berhasil! Kode booking Anda: ' . $savedTransaction->code);
     }
 
     public function checkBooking()
