@@ -245,4 +245,24 @@ class BookingController extends Controller
     {
         return view('pages.booking.check-booking');
     }
+
+    public function showBooking(Request $request)
+    {
+        $request->validate([
+            'booking_trx_id' => 'required|string',
+            'phone'          => 'required|string',
+        ]);
+
+        $transaction = Transaction::where('code', $request->booking_trx_id)
+                                  ->where('phone', $request->phone)
+                                  ->with(['flight.airline', 'flight.segments.airport', 'passengers', 'flightClass'])
+                                  ->first();
+
+        if (!$transaction) {
+            return redirect()->back()->with('error', 'Booking tidak ditemukan. Periksa kembali Kode Booking dan Nomor HP Anda.');
+        }
+
+        // Tampilkan halaman detail booking / success dengan data transaction tersebut
+        return view('pages.booking.success', compact('transaction'));
+    }
 }

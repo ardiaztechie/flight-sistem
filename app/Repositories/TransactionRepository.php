@@ -59,7 +59,9 @@ class TransactionRepository implements TransactionRepositoryInterface
 
         // Simpan transaksi dan penumpang
         $transaction = $this->createTransaction($data);
-        $this->savePassengers($data['passengers'], $transaction->id);
+        // Kirim selected_seats agar bisa di-map ke passenger by index
+        $selectedSeats = $data['selected_seats'] ?? [];
+        $this->savePassengers($data['passengers'], $transaction->id, $selectedSeats);
 
         // JANGAN forget session di sini - biarkan controller yang handle
         // session()->forget('transaction');
@@ -119,11 +121,24 @@ class TransactionRepository implements TransactionRepositoryInterface
         return Transaction::create($data);
     }
 
-    private function savePassengers($passengers, $transactionId)
+    private function savePassengers($passengers, $transactionId, $selectedSeats = [])
     {
-        foreach ($passengers as $passenger) {
-            $passenger['transaction_id'] = $transactionId;
-            TransactionPassenger::create($passenger);
+        $seatIds = array_values((array) $selectedSeats);
+
+        foreach ($passengers as $index => $passenger) {
+            $passenger['transaction_id']  = $transactionId;
+
+            // Map seat ID ke passenger berdasarkan urutan index
+            $passenger['flight_seat_id'] = $seatIds[$index] ?? null;
+
+            // Hanya ambil kolom yang dibutuhkan (hindari mass assignment error)
+            TransactionPassenger::create([
+                'transaction_id'  => $passenger['transaction_id'],
+                'flight_seat_id'  => $passenger['flight_seat_id'],
+                'name'            => $passenger['name'],
+                'date_of_birth'   => $passenger['date_of_birth'],
+                'nationality'     => $passenger['nationality'],
+            ]);
         }
     }
 

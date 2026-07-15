@@ -33,3 +33,4 @@ Route::post('xendit/webhook', [BookingController::class, 'xenditWebhook'])->name
 Route::get('promo/check', [PromoCodeController::class, 'check'])->name('promo.check');
 
 Route::get('check-booking', [BookingController::class, 'checkBooking'])->name('booking.check');
+Route::post('check-booking', [BookingController::class, 'showBooking'])->name('booking.show');
