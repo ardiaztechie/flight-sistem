@@ -32,26 +32,41 @@ class TransactionRepository implements TransactionRepositoryInterface
         $data['code'] = $this->generateTransactionCode();
         $data['number_of_passengers'] = $this->countPassengers($data['passengers']);
 
-        // Hitung subtotal dan grand total awal
+        // Hitung subtotal
         $data['subtotal'] = $this->calculateSubtotal($data['flight_class_id'], $data['number_of_passengers']);
-        $data['grandtotal'] = $data['subtotal'];
 
-        // Terapkan promo jika ada
-        if (!empty($data['promo_code'])) {
-            $data = $this->applyPromoCode($data);
+        // Jika ada discount yang sudah dihitung dari frontend (promo code check AJAX)
+        $manualDiscount = isset($data['discount']) ? (int) $data['discount'] : 0;
+
+        if ($manualDiscount > 0) {
+            $data['discount']   = $manualDiscount;
+            $data['grandtotal'] = $data['subtotal'] - $manualDiscount;
+        } else {
+            $data['discount']   = 0;
+            $data['grandtotal'] = $data['subtotal'];
+
+            // Fallback: terapkan promo jika ada dan discount belum dihitung
+            if (!empty($data['promo_code'])) {
+                $data = $this->applyPromoCode($data);
+            }
         }
 
-        // Tambahkan PPN
+        // Tambahkan PPN 11%
         $data['grandtotal'] = $this->addPPN($data['grandtotal']);
+
+        // Pastikan grandtotal tidak negatif
+        $data['grandtotal'] = max(0, $data['grandtotal']);
 
         // Simpan transaksi dan penumpang
         $transaction = $this->createTransaction($data);
         $this->savePassengers($data['passengers'], $transaction->id);
 
-        session()->forget('transaction');
+        // JANGAN forget session di sini - biarkan controller yang handle
+        // session()->forget('transaction');
 
         return $transaction;
     }
+
 
     private function generateTransactionCode()
     {

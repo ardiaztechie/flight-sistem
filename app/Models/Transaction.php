@@ -20,8 +20,12 @@ class Transaction extends Model
         'number_of_passengers',
         'promo_code_id',
         'payment_status',
+        'payment_method',
         'subtotal',
         'grandtotal',
+        'discount',
+        'xendit_invoice_id',
+        'xendit_invoice_url',
     ];
 
     public function flight()
@@ -29,9 +33,9 @@ class Transaction extends Model
         return $this->belongsTo(Flight::class);
     }
 
-    public function Class()
+    public function flightClass()
     {
-        return $this->belongsTo(FlightClass::class);
+        return $this->belongsTo(FlightClass::class, 'flight_class_id');
     }
 
     public function promo()
