@@ -165,6 +165,20 @@
                     </div>
                     <div class="flex justify-between items-center">
                         <div>
+                            <p class="text-sm text-garuda-grey">Discount</p>
+                            <p class="font-semibold text-lg leading-[27px] mt-[2px] text-garuda-green" id="discount">
+                                Rp 0
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-garuda-grey">Promo Code</p>
+                            <p class="font-semibold text-lg leading-[27px] mt-[2px]" id="promo-code">
+                                <!-- Nilai promo code biasanya ditaruh di sini -->
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
                             <p class="text-sm text-garuda-grey">Total Tax</p>
                             <p class="font-semibold text-lg leading-[27px] mt-[2px]">
                                 {{ 'Rp. ' . number_format($tier->price * count($transaction['selected_seats']) * 0.11, 0, ',', '.') }}
@@ -305,27 +319,7 @@
                 @endforeach
             @endif
 
-            {{-- Apply Promo --}}
-            <div id="Promo" class="flex flex-col rounded-[20px] p-5 gap-5 bg-white overflow-hidden">
-                <h2 class="font-bold text-xl leading-[30px]">Apply Promo</h2>
-                <label class="flex flex-col gap-[10px]">
-                    <p class="font-semibold">Promo Code</p>
-                    <div class="flex items-center flex-nowrap gap-[10px]">
-                        <div class="flex items-center rounded-full border border-garuda-black py-3 px-5 gap-[10px] focus-within:border-[#0068FF] transition-all duration-300 w-full">
-                            <img src="{{ asset('assets/images/icons/receipt-discount-black.svg') }}"
-                                class="w-5 flex shrink-0" alt="icon">
-                            <input type="text" name="promo_code" id="promo_code"
-                                class="appearance-none outline-none w-full font-semibold placeholder:font-normal"
-                                placeholder="Input promo code">
-                        </div>
-                        <button type="button" onclick="checkPromo()"
-                            class="text-sm font-semibold text-garuda-blue whitespace-nowrap border border-garuda-blue rounded-full px-4 py-3 hover:bg-garuda-blue hover:text-white transition-all duration-300">
-                            Check
-                        </button>
-                    </div>
-                    <span id="promo-msg" class="text-sm font-semibold hidden"></span>
-                </label>
-            </div>
+           @livewire('check-promo-code')
 
             {{-- Payment Method --}}
             <div id="Payment-Method" class="flex flex-col rounded-[20px] p-5 gap-5 bg-white overflow-hidden">
